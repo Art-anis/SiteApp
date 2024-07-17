@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">SiteApp</string>
+    <string name="about_description">This app is made to generate random sightseeing spots for you to visit. Out of ideas? Smash the \"Generate\" button!</string>
+    <string name="title_activity_add_site">AddSiteActivity</string>
+    <string name="title_activity_view_site">ViewSiteActivity</string>
+    <string name="site_name_placeholder">Site Name</string>
+    <string name="browse_sites">Browse Sites</string>
+    <string name="main_page_question">Where do we go today?</string>
+    <string name="generate">Generate</string>
+    <string name="about_title">About Us</string>
+    <string name="add_site">Add Site</string>
+    <string name="save_btn">Save Site</string>
+    <string name="back_btn">Go Back</string>
+    <string name="add_site_title">Add a site of your choice</string>
+    <string name="upload_image_text">Click here to upload an image</string>
+    <string name="name_field_placeholder">Add Site Name...</string>
+    <string name="description_field_placeholder">Add Site Description...</string>
+</resources>
