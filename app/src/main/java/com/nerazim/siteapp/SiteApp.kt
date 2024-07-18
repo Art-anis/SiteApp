@@ -10,14 +10,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.nerazim.siteapp.browse.BrowseScreen
-import com.nerazim.siteapp.browse.Site
+import androidx.navigation.navArgument
 import com.nerazim.siteapp.addsite.AddSiteScreen
+import com.nerazim.siteapp.browse.BrowseScreen
 import com.nerazim.siteapp.edit.EditSiteScreen
 import com.nerazim.siteapp.home.HomeScreen
+import com.nerazim.siteapp.nav.DetailsDestination
+import com.nerazim.siteapp.nav.EditDestination
 import com.nerazim.siteapp.ui.theme.SiteAppTheme
 import com.nerazim.siteapp.viewsite.ViewSiteScreen
 
@@ -67,7 +70,7 @@ fun SiteApp() {
                        navController.navigate(Route.AddSite.path)
                    },
                    goToViewScreen = {
-                        navController.navigate(Route.ViewSite.path)
+                        navController.navigate("${DetailsDestination.route}/$it")
                    },
                    goToBrowseScreen = {
                        navController.navigate(Route.Browse.path)
@@ -87,7 +90,12 @@ fun SiteApp() {
                 )
             }
 
-            composable(Route.EditSite.path) {
+            composable(
+                route = EditDestination.routeWithArgs,
+                arguments = listOf(navArgument(EditDestination.itemId) {
+                    type = NavType.IntType
+                })
+            ) {
                 EditSiteScreen(
                     scaffoldState = scaffoldState,
                     goToBrowseScreen = {
@@ -99,13 +107,17 @@ fun SiteApp() {
                 )
             }
 
-            composable(Route.ViewSite.path) {
+            composable(
+                route = DetailsDestination.routeWithArgs,
+                arguments = listOf(navArgument(DetailsDestination.itemId) {
+                    type = NavType.IntType
+                })
+            ) {
                 ViewSiteScreen(
                     scaffoldState = scaffoldState,
                     goToAddScreen = {
                         navController.navigate(Route.EditSite.path)
                     },
-                    site = Site(""),
                     goBack = {
                         navController.navigateUp()
                     }
@@ -116,10 +128,13 @@ fun SiteApp() {
                 BrowseScreen(
                     scaffoldState = scaffoldState,
                     goToAddScreen = {
-                        navController.navigate(Route.EditSite.path)
+                        navController.navigate(Route.AddSite.path)
+                    },
+                    goToEditScreen = {
+                        navController.navigate("${EditDestination.route}/$it")
                     },
                     goToViewScreen = {
-                        navController.navigate(Route.ViewSite.path)
+                        navController.navigate("${DetailsDestination.route}/$it")
                     }
                 )
             }

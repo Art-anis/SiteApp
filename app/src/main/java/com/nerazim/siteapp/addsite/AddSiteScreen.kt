@@ -63,23 +63,25 @@ fun AddSiteScreen(
     )
 
     SiteForm(
-        siteDetails = viewModel.siteUiState.siteDetails,
+        siteUiState = viewModel.siteUiState,
         onValueChange = viewModel::updateUiState
     )
 }
 
-//Preview теперь не работает из-за viewModel
-//@Preview(showBackground = true)
-//@Composable
-//fun AddSiteScreenPreview() {
-//    SiteAppTheme {
-//        val state = remember {
-//            mutableStateOf(ScaffoldState(
-//                {},
-//                {},
-//                {}
-//            ))
-//        }
-//        AddSiteScreen(scaffoldState = state, goToBrowseScreen = { /*TODO*/ }, goBack = {})
-//    }
-//}
+/*
+Preview теперь не работает из-за viewModel
+@Preview(showBackground = true)
+@Composable
+fun AddSiteScreenPreview() {
+SiteAppTheme {
+val state = remember {
+mutableStateOf(ScaffoldState(
+{},
+{},
+{}
+))
+}
+AddSiteScreen(scaffoldState = state, goToBrowseScreen = {  }, goBack = {})
+}
+}
+*/

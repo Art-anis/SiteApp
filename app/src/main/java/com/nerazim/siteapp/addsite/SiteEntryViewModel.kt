@@ -38,6 +38,19 @@ fun SiteDetails.toSiteEntity(): SiteEntity = SiteEntity(
     link = link
 )
 
+fun SiteEntity.toSiteDetails(): SiteDetails = SiteDetails(
+    id = id,
+    name = name,
+    description = description,
+    image = Uri.parse(image),
+    link = link
+)
+
+fun SiteEntity.toSiteUiState(isEntryValid: Boolean = false): SiteUiState = SiteUiState(
+    siteDetails = this.toSiteDetails(),
+    isEntryValid = isEntryValid
+)
+
 data class SiteUiState(
     val siteDetails: SiteDetails = SiteDetails(),
     val isEntryValid: Boolean = false

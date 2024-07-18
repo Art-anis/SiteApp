@@ -19,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,25 +34,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.nerazim.siteapp.AppViewModelProvider
 import com.nerazim.siteapp.R
 import com.nerazim.siteapp.ScaffoldState
+import com.nerazim.siteapp.addsite.SiteDetails
+import com.nerazim.siteapp.addsite.SiteUiState
 import com.nerazim.siteapp.browse.Site
 import com.nerazim.siteapp.nav.NavigationDestination
 import com.nerazim.siteapp.ui.theme.SiteAppTheme
-
-object DetailsDestination: NavigationDestination {
-    override val route = "site_details"
-    const val itemId = "itemId"
-    val routeWithArgs = "${route}/{$itemId}"
-}
 
 @Composable
 fun ViewSiteScreen(
     scaffoldState: MutableState<ScaffoldState>,
     goToAddScreen: (Int) -> Unit,
-    site: Site,
-    goBack: () -> Unit
+    goBack: () -> Unit,
+    viewModel: SiteDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     scaffoldState.value = ScaffoldState(
         title = {
@@ -75,13 +75,15 @@ fun ViewSiteScreen(
             }
         }
     )
+
+    val uiState = viewModel.uiState.collectAsState()
     
-    SiteData(site)
+    SiteData(uiState.value)
 }
 
 @Composable
 fun SiteData(
-    site: Site
+    site: SiteDetailsUiState
 ) {
     Column(
         modifier = Modifier
@@ -97,14 +99,14 @@ fun SiteData(
         )
         Spacer(Modifier.height(32.dp))
         Text(
-            text = site.name,
+            text = site.siteDetails.name,
             style = MaterialTheme.typography.titleLarge
                 .merge(TextStyle(fontWeight = FontWeight.Bold))
         )
         Spacer(modifier = Modifier.height(12.dp))
         //TODO fix after changing image source to URI
         AsyncImage(
-            model = site.image,
+            model = site.siteDetails.image,
             contentDescription = null,
             placeholder = rememberVectorPainter(image = Icons.Default.Place),
             error = rememberVectorPainter(image = Icons.Default.Place),
@@ -115,14 +117,14 @@ fun SiteData(
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = site.description,
+            text = site.siteDetails.description,
             textAlign = TextAlign.Justify,
             modifier = Modifier
                 .fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(20.dp))
         Text(
-            text = site.link,
+            text = site.siteDetails.link,
             style = MaterialTheme.typography.bodyLarge
                 .merge(
                     TextStyle(
@@ -141,6 +143,6 @@ fun ViewSiteScreenPreview() {
         val state = remember {
             mutableStateOf(ScaffoldState())
         }
-        ViewSiteScreen(scaffoldState = state, site = Site("Кремль"), goToAddScreen = {}, goBack = { /*TODO*/ })
+        ViewSiteScreen(scaffoldState = state, goToAddScreen = {}, goBack = {  })
     }
 }

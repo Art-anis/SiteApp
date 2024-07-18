@@ -39,6 +39,8 @@ import coil.compose.AsyncImage
 import com.nerazim.siteapp.AppViewModelProvider
 import com.nerazim.siteapp.R
 import com.nerazim.siteapp.ScaffoldState
+import com.nerazim.siteapp.addsite.SiteDetails
+import com.nerazim.siteapp.addsite.toSiteDetails
 import com.nerazim.siteapp.db.SiteEntity
 
 data class Site(
@@ -51,7 +53,8 @@ data class Site(
 @Composable
 fun BrowseScreen(
     scaffoldState: MutableState<ScaffoldState>,
-    goToAddScreen: (Int) -> Unit,
+    goToAddScreen: () -> Unit,
+    goToEditScreen: (Int) -> Unit,
     goToViewScreen: (Int) -> Unit,
     viewModel: BrowseViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -61,7 +64,7 @@ fun BrowseScreen(
         },
         topBarActions = {
             IconButton(onClick = {
-                goToAddScreen(0)
+                goToAddScreen()
             }) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -82,8 +85,8 @@ fun BrowseScreen(
     LazyColumn {
         items(browseUiState.siteList) { site ->
             SiteItem(
-                site = site,
-                goToEditScreen = goToAddScreen,
+                site = site.toSiteDetails(),
+                goToEditScreen = goToEditScreen,
                 goToViewScreen = goToViewScreen
             )
         }
@@ -92,7 +95,7 @@ fun BrowseScreen(
 
 @Composable
 fun SiteItem(
-    site: SiteEntity,
+    site: SiteDetails,
     goToEditScreen: (Int) -> Unit,
     goToViewScreen: (Int) -> Unit
 ) {
@@ -101,7 +104,7 @@ fun SiteItem(
             .fillMaxWidth()
             .height(150.dp)
             .clickable {
-                //goToViewScreen(site.id)
+                goToViewScreen(site.id)
             }
     ) {
         Column(
@@ -156,7 +159,7 @@ fun SiteItem(
                 horizontalArrangement = Arrangement.Center
             ) {
                 IconButton(onClick = {
-                    //goToViewScreen(site.id)
+                    goToViewScreen(site.id)
                 }) {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -164,7 +167,7 @@ fun SiteItem(
                     )
                 }
                 IconButton(onClick = {
-                    //goToEditScreen(site.id)
+                    goToEditScreen(site.id)
                 }) {
                     Icon(
                         imageVector = Icons.Default.Edit,

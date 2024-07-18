@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -40,22 +41,27 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.nerazim.siteapp.AppViewModelProvider
 import com.nerazim.siteapp.R
 import com.nerazim.siteapp.ScaffoldState
 import com.nerazim.siteapp.addsite.SiteDetails
+import com.nerazim.siteapp.addsite.SiteUiState
 import com.nerazim.siteapp.nav.NavigationDestination
 import com.nerazim.siteapp.ui.theme.SiteAppTheme
+import com.nerazim.siteapp.viewsite.SiteDetailsViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun EditSiteScreen(
     scaffoldState: MutableState<ScaffoldState>,
     goToBrowseScreen: () -> Unit,
-    goBack: () -> Unit
+    goBack: () -> Unit,
+    viewModel: SiteEditViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val coroutineScope = rememberCoroutineScope()
     scaffoldState.value = ScaffoldState(
         title = {
             Text(stringResource(id = R.string.app_name))
@@ -72,7 +78,10 @@ fun EditSiteScreen(
             BottomAppBar {
                 Row {
                     Button(onClick = {
-
+                        coroutineScope.launch {
+                            viewModel.saveSite()
+                            goBack()
+                        }
                     }) {
                         Text(text = stringResource(id = R.string.save_btn))
                     }
@@ -85,22 +94,22 @@ fun EditSiteScreen(
     )
 
     SiteForm(
-        //siteDetails = viewModel.siteUiState.siteDetails,
-        onValueChange = { }
+        siteUiState = viewModel.siteUiState,
+        onValueChange = viewModel::updateUiState
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SiteForm(
-    siteDetails: SiteDetails = SiteDetails(),
+    siteUiState: SiteUiState,
     onValueChange: (SiteDetails) -> Unit
 ) {
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = {
-            onValueChange(siteDetails.copy(image = it ?: Uri.EMPTY))
+            onValueChange(siteUiState.siteDetails.copy(image = it ?: Uri.EMPTY))
         }
     )
 
@@ -133,7 +142,7 @@ fun SiteForm(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AsyncImage(
-                model = siteDetails.image,
+                model = siteUiState.siteDetails.image,
                 contentDescription = null,
                 placeholder = rememberVectorPainter(image = Icons.Default.Place),
                 error = rememberVectorPainter(image = Icons.Default.Place),
@@ -151,9 +160,9 @@ fun SiteForm(
         }
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(
-            value = siteDetails.name,
+            value = siteUiState.siteDetails.name,
             onValueChange = {
-                onValueChange(siteDetails.copy(name = it))
+                onValueChange(siteUiState.siteDetails.copy(name = it))
             },
             placeholder = {
                 Text(
@@ -168,9 +177,9 @@ fun SiteForm(
         )
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(
-            value = siteDetails.description,
+            value = siteUiState.siteDetails.description,
             onValueChange = {
-                onValueChange(siteDetails.copy(description = it))
+                onValueChange(siteUiState.siteDetails.copy(description = it))
             },
             placeholder = {
                 Text(
@@ -188,9 +197,9 @@ fun SiteForm(
         )
         Spacer(modifier = Modifier.height(12.dp))
         OutlinedTextField(
-            value = siteDetails.link,
+            value = siteUiState.siteDetails.link,
             onValueChange = {
-                onValueChange(siteDetails.copy(link = it))
+                onValueChange(siteUiState.siteDetails.copy(link = it))
             },
             placeholder = {
                 Text(
@@ -218,8 +227,5 @@ fun EditSiteScreenPreview() {
                 {}
             ))
         }
-        EditSiteScreen(scaffoldState = state, goToBrowseScreen = { /*TODO*/ }) {
-
-        }
-    }
+        EditSiteScreen(scaffoldState = state, goToBrowseScreen = { }, goBack = {})    }
 }

@@ -1,11 +1,14 @@
 package com.nerazim.siteapp
 
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.nerazim.siteapp.addsite.SiteEntryViewModel
 import com.nerazim.siteapp.browse.BrowseViewModel
+import com.nerazim.siteapp.edit.SiteEditViewModel
+import com.nerazim.siteapp.viewsite.SiteDetailsViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -17,12 +20,19 @@ object AppViewModelProvider {
             BrowseViewModel(siteApplication().container.sitesRepository)
         }
 
-//        initializer {
-//            SiteDetailsViewModel(
-//                this.createSavedStateHandle(),
-//                siteApplication().container.sitesRepository
-//            )
-//        }
+        initializer {
+            SiteDetailsViewModel(
+                this.createSavedStateHandle(),
+                siteApplication().container.sitesRepository
+            )
+        }
+
+        initializer {
+            SiteEditViewModel(
+                this.createSavedStateHandle(),
+                siteApplication().container.sitesRepository
+            )
+        }
     }
 }
 

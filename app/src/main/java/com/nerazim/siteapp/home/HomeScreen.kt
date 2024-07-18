@@ -45,8 +45,8 @@ import com.nerazim.siteapp.ui.theme.SiteAppTheme
 @Composable
 fun HomeScreen(
     scaffoldState: MutableState<ScaffoldState>,
-    goToAddScreen: (Int) -> Unit,
-    goToViewScreen: () -> Unit,
+    goToAddScreen: () -> Unit,
+    goToViewScreen: (Int) -> Unit,
     goToBrowseScreen: () -> Unit
 ) {
     scaffoldState.value = ScaffoldState(
@@ -55,7 +55,7 @@ fun HomeScreen(
         },
         topBarActions = {
             IconButton(onClick = {
-                goToAddScreen(0)
+                goToAddScreen()
             }) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -93,7 +93,9 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .padding(top = 16.dp)
                 .height(384.dp)
-                .clickable(onClick = goToViewScreen)
+                .clickable(onClick = {
+                    goToViewScreen(0)
+                })
         )
 
         Text(

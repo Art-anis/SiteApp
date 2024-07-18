@@ -6,6 +6,12 @@ interface NavigationDestination {
 
 object DetailsDestination: NavigationDestination {
     override val route: String = "site_details"
-    const val itemIdArg = "itemId"
-    val routeWithArgs = "$route/{$itemIdArg}"
+    const val itemId = "itemId"
+    val routeWithArgs = "$route/{$itemId}"
+}
+
+object EditDestination: NavigationDestination {
+    override val route: String = "edit_site"
+    const val itemId = "itemId"
+    val routeWithArgs = "${route}/{$itemId}"
 }
