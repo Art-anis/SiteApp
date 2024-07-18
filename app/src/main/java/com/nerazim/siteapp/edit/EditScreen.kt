@@ -45,6 +45,7 @@ import coil.compose.AsyncImage
 import com.nerazim.siteapp.AppViewModelProvider
 import com.nerazim.siteapp.R
 import com.nerazim.siteapp.ScaffoldState
+import com.nerazim.siteapp.addsite.SiteDetails
 import com.nerazim.siteapp.nav.NavigationDestination
 import com.nerazim.siteapp.ui.theme.SiteAppTheme
 import kotlinx.coroutines.launch
@@ -85,27 +86,21 @@ fun EditSiteScreen(
 
     SiteForm(
         //siteDetails = viewModel.siteUiState.siteDetails,
-        //onValueChange = viewModel::updateUiState
+        onValueChange = { }
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SiteForm(
-    //siteDetails: SiteDetails,
-    //onValueChange: (SiteDetails) -> Unit
+    siteDetails: SiteDetails = SiteDetails(),
+    onValueChange: (SiteDetails) -> Unit
 ) {
-
-    var image: Uri = Uri.EMPTY
-    var name: String = ""
-    var description: String = ""
-    var link: String = ""
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = {
-            //onValueChange(siteDetails.copy(image = it ?: Uri.EMPTY))
-            image = it ?: Uri.EMPTY
+            onValueChange(siteDetails.copy(image = it ?: Uri.EMPTY))
         }
     )
 
@@ -138,7 +133,7 @@ fun SiteForm(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AsyncImage(
-                model = image,
+                model = siteDetails.image,
                 contentDescription = null,
                 placeholder = rememberVectorPainter(image = Icons.Default.Place),
                 error = rememberVectorPainter(image = Icons.Default.Place),
@@ -156,9 +151,9 @@ fun SiteForm(
         }
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(
-            value = name,
+            value = siteDetails.name,
             onValueChange = {
-                name = it
+                onValueChange(siteDetails.copy(name = it))
             },
             placeholder = {
                 Text(
@@ -173,9 +168,9 @@ fun SiteForm(
         )
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(
-            value = description,
+            value = siteDetails.description,
             onValueChange = {
-                description = it
+                onValueChange(siteDetails.copy(description = it))
             },
             placeholder = {
                 Text(
@@ -193,9 +188,9 @@ fun SiteForm(
         )
         Spacer(modifier = Modifier.height(12.dp))
         OutlinedTextField(
-            value = link,
+            value = siteDetails.link,
             onValueChange = {
-                link = it
+                onValueChange(siteDetails.copy(link = it))
             },
             placeholder = {
                 Text(

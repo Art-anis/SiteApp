@@ -15,7 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.nerazim.siteapp.browse.BrowseScreen
 import com.nerazim.siteapp.browse.Site
-import com.nerazim.siteapp.edit.AddSiteScreen
+import com.nerazim.siteapp.addsite.AddSiteScreen
 import com.nerazim.siteapp.edit.EditSiteScreen
 import com.nerazim.siteapp.home.HomeScreen
 import com.nerazim.siteapp.ui.theme.SiteAppTheme
