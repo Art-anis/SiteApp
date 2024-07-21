@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SiteApp</string>
+    <string name="app_name">OhMyPlace</string>
     <string name="about_description">This app is made to generate random sightseeing spots for you to visit. Out of ideas? Smash the \"Generate\" button!</string>
     <string name="title_activity_add_site">AddSiteActivity</string>
     <string name="title_activity_view_site">ViewSiteActivity</string>

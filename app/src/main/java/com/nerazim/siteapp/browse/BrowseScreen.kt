@@ -18,6 +18,9 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +29,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
@@ -41,7 +47,8 @@ import com.nerazim.siteapp.R
 import com.nerazim.siteapp.ScaffoldState
 import com.nerazim.siteapp.addsite.SiteDetails
 import com.nerazim.siteapp.addsite.toSiteDetails
-import com.nerazim.siteapp.db.SiteEntity
+import kotlinx.coroutines.launch
+import kotlin.reflect.KSuspendFunction1
 
 data class Site(
     val name: String,
@@ -56,11 +63,17 @@ fun BrowseScreen(
     goToAddScreen: () -> Unit,
     goToEditScreen: (Int) -> Unit,
     goToViewScreen: (Int) -> Unit,
+    goBack: () -> Unit,
     viewModel: BrowseViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     scaffoldState.value = ScaffoldState(
         title = {
-            Text(stringResource(id = R.string.app_name))
+            Text(stringResource(id = R.string.app_name),
+                style = MaterialTheme.typography.titleLarge
+                    .merge(TextStyle(
+                        fontWeight = FontWeight.Bold
+                    ))
+            )
         },
         topBarActions = {
             IconButton(onClick = {
@@ -73,21 +86,23 @@ fun BrowseScreen(
             }
         },
         bottomBar = {
-
+            BottomAppBar {
+                Button(onClick = goBack) {
+                    Text(stringResource(id = R.string.back_btn))
+                }
+            }
         }
     )
 
     val browseUiState by viewModel.browseUiState.collectAsState()
-
-    val sites: List<Site> = listOf(Site("Кремль"), Site("Петропавловская крепость"))
-
 
     LazyColumn {
         items(browseUiState.siteList) { site ->
             SiteItem(
                 site = site.toSiteDetails(),
                 goToEditScreen = goToEditScreen,
-                goToViewScreen = goToViewScreen
+                goToViewScreen = goToViewScreen,
+                deleteSite = viewModel::deleteSite
             )
         }
     }
@@ -95,10 +110,26 @@ fun BrowseScreen(
 
 @Composable
 fun SiteItem(
+    deleteSite: KSuspendFunction1<Int, Unit>,
     site: SiteDetails,
     goToEditScreen: (Int) -> Unit,
     goToViewScreen: (Int) -> Unit
 ) {
+    val showDialog = remember {
+        mutableStateOf(false)
+    }
+
+    if (showDialog.value) {
+        DeleteConfirmation(
+            deleteSite = deleteSite,
+            site = site,
+            showDialog = showDialog.value,
+            onDismiss = {
+                showDialog.value = false
+            }
+        )
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -174,7 +205,9 @@ fun SiteItem(
                         contentDescription = null
                     )
                 }
-                IconButton(onClick = { /*TODO delete*/ }) {
+                IconButton(onClick = {
+                    showDialog.value = true
+                }) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = null
@@ -183,5 +216,38 @@ fun SiteItem(
             }
             Spacer(modifier = Modifier.height(10.dp))
         }
+    }
+}
+
+@Composable
+fun DeleteConfirmation(
+    deleteSite: KSuspendFunction1<Int, Unit>,
+    site: SiteDetails,
+    showDialog: Boolean,
+    onDismiss: () -> Unit
+) {
+    val coroutineScope = rememberCoroutineScope()
+    if (showDialog) {
+        AlertDialog(
+            title = {
+                Text("Delete site?")
+            },
+            text = {
+                Text("Are you sure you want to delete this site?")
+            },
+            onDismissRequest = onDismiss,
+            dismissButton = {
+                Text("No")
+            },
+            confirmButton = {
+                Text(text = "Yes",
+                    modifier = Modifier.clickable {
+                        coroutineScope.launch {
+                            deleteSite(site.id)
+                            onDismiss()
+                        }
+                    })
+            },
+        )
     }
 }

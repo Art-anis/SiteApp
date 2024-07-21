@@ -1,6 +1,10 @@
 package com.nerazim.siteapp.edit
 
+import android.annotation.SuppressLint
+import android.database.Cursor
 import android.net.Uri
+import android.provider.OpenableColumns
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -11,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -27,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -35,23 +39,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.nerazim.siteapp.AppViewModelProvider
 import com.nerazim.siteapp.R
 import com.nerazim.siteapp.ScaffoldState
 import com.nerazim.siteapp.addsite.SiteDetails
 import com.nerazim.siteapp.addsite.SiteUiState
-import com.nerazim.siteapp.nav.NavigationDestination
 import com.nerazim.siteapp.ui.theme.SiteAppTheme
-import com.nerazim.siteapp.viewsite.SiteDetailsViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -64,7 +68,12 @@ fun EditSiteScreen(
     val coroutineScope = rememberCoroutineScope()
     scaffoldState.value = ScaffoldState(
         title = {
-            Text(stringResource(id = R.string.app_name))
+            Text(stringResource(id = R.string.app_name),
+                style = MaterialTheme.typography.titleLarge
+                    .merge(TextStyle(
+                        fontWeight = FontWeight.Bold
+                    ))
+            )
         },
         topBarActions = {
             IconButton(onClick = goToBrowseScreen) {
@@ -99,6 +108,7 @@ fun EditSiteScreen(
     )
 }
 
+@SuppressLint("Recycle")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SiteForm(
@@ -106,10 +116,15 @@ fun SiteForm(
     onValueChange: (SiteDetails) -> Unit
 ) {
 
+    val context = LocalContext.current
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = {
-            onValueChange(siteUiState.siteDetails.copy(image = it ?: Uri.EMPTY))
+            if (it == null) return@rememberLauncherForActivityResult
+            val input = context.contentResolver.openInputStream(it) ?: return@rememberLauncherForActivityResult
+            val outputFile = context.filesDir.resolve(siteUiState.siteDetails.name)
+            input.copyTo(outputFile.outputStream())
+            onValueChange(siteUiState.siteDetails.copy(image = outputFile.toUri()))
         }
     )
 
@@ -135,9 +150,14 @@ fun SiteForm(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable {
-                    photoPickerLauncher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
+                    if (siteUiState.siteDetails.name.isBlank()) {
+                        Toast.makeText(context, "Write the site name first.", Toast.LENGTH_LONG).show()
+                    }
+                    else {
+                        photoPickerLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }
                 },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -173,7 +193,8 @@ fun SiteForm(
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedTextColor = MaterialTheme.colorScheme.primary,
                 unfocusedTextColor = MaterialTheme.colorScheme.onSurface
-            )
+            ),
+            modifier = Modifier.fillMaxWidth(0.8f)
         )
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(
@@ -194,6 +215,7 @@ fun SiteForm(
             modifier = Modifier
                 .height(150.dp)
                 .verticalScroll(rememberScrollState())
+                .fillMaxWidth(0.8f)
         )
         Spacer(modifier = Modifier.height(12.dp))
         OutlinedTextField(
@@ -210,7 +232,8 @@ fun SiteForm(
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 focusedTextColor = MaterialTheme.colorScheme.primary,
                 unfocusedTextColor = MaterialTheme.colorScheme.onSurface
-            )
+            ),
+            modifier = Modifier.fillMaxWidth(0.8f)
         )
         Spacer(modifier = Modifier.height(12.dp))
     }

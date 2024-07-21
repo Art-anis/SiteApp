@@ -7,6 +7,8 @@ interface SiteRepository {
 
     fun getSiteByIdStream(id: Int): Flow<SiteEntity?>
 
+    fun getRandomSite(): Flow<SiteEntity>
+
     suspend fun insertSite(site: SiteEntity)
 
     suspend fun updateSite(site: SiteEntity)
@@ -18,6 +20,8 @@ class SiteRepositoryImpl(private val siteDao: SiteDao): SiteRepository {
     override fun getAllSitesStream(): Flow<List<SiteEntity>> = siteDao.getAll()
 
     override fun getSiteByIdStream(id: Int): Flow<SiteEntity?> = siteDao.getById(id)
+
+    override fun getRandomSite(): Flow<SiteEntity> = siteDao.getRandom()
 
     override suspend fun insertSite(site: SiteEntity) = siteDao.insert(site)
 

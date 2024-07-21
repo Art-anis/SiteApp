@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.nerazim.siteapp.addsite.SiteEntryViewModel
 import com.nerazim.siteapp.browse.BrowseViewModel
 import com.nerazim.siteapp.edit.SiteEditViewModel
+import com.nerazim.siteapp.home.HomeViewModel
 import com.nerazim.siteapp.viewsite.SiteDetailsViewModel
 
 object AppViewModelProvider {
@@ -30,6 +31,12 @@ object AppViewModelProvider {
         initializer {
             SiteEditViewModel(
                 this.createSavedStateHandle(),
+                siteApplication().container.sitesRepository
+            )
+        }
+
+        initializer {
+            HomeViewModel(
                 siteApplication().container.sitesRepository
             )
         }

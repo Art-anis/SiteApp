@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -36,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.nerazim.siteapp.AppViewModelProvider
 import com.nerazim.siteapp.R
 import com.nerazim.siteapp.ScaffoldState
@@ -47,11 +49,17 @@ fun HomeScreen(
     scaffoldState: MutableState<ScaffoldState>,
     goToAddScreen: () -> Unit,
     goToViewScreen: (Int) -> Unit,
-    goToBrowseScreen: () -> Unit
+    goToBrowseScreen: () -> Unit,
+    viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     scaffoldState.value = ScaffoldState(
         title = {
-            Text(text = stringResource(id = R.string.app_name))
+            Text(text = stringResource(id = R.string.app_name),
+                style = MaterialTheme.typography.titleLarge
+                    .merge(TextStyle(
+                        fontWeight = FontWeight.Bold
+                    ))
+            )
         },
         topBarActions = {
             IconButton(onClick = {
@@ -86,20 +94,27 @@ fun HomeScreen(
             modifier = Modifier.height(80.dp)
         )
 
-        Image(
-            painter = painterResource(id = R.drawable.placeholder),
+        AsyncImage(
+            model = viewModel.siteUiState.siteDetails.image,
             contentDescription = null,
+            error = painterResource(id = R.drawable.placeholder),
+            placeholder = painterResource(id = R.drawable.placeholder),
+            fallback = painterResource(id = R.drawable.placeholder),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp)
                 .height(384.dp)
                 .clickable(onClick = {
-                    goToViewScreen(0)
+                    val id = viewModel.siteUiState.siteDetails.id
+                    if (id != 0)
+                        goToViewScreen(id)
                 })
         )
 
         Text(
-            text = stringResource(id = R.string.main_page_question),
+            text = if (viewModel.siteUiState.siteDetails.name == "")
+                stringResource(id = R.string.main_page_question)
+                else viewModel.siteUiState.siteDetails.name,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .border(
@@ -111,7 +126,9 @@ fun HomeScreen(
         )
 
         Button(
-            onClick = { /*TODO generate button*/ },
+            onClick = {
+                viewModel.generate()
+            },
             modifier = Modifier.padding(top = 16.dp)
         ) {
             Text(
@@ -134,6 +151,8 @@ fun HomeScreen(
                 .padding(horizontal = 16.dp)
                 .padding(top = 16.dp)
         )
+
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -146,9 +165,8 @@ fun HomeScreenPreview() {
         }
         HomeScreen(
             scaffoldState = state,
-            goToAddScreen = { /*TODO*/ },
-            goToViewScreen = { /*TODO*/ }) {
-
-        }
+            goToAddScreen = {  },
+            goToViewScreen = {  },
+            goToBrowseScreen = {})
     }
 }

@@ -24,4 +24,7 @@ interface SiteDao {
 
     @Query("SELECT * FROM sites where id = :id")
     fun getById(id: Int): Flow<SiteEntity>
+
+    @Query("SELECT * FROM sites ORDER BY RANDOM() LIMIT 1")
+    fun getRandom(): Flow<SiteEntity>
 }

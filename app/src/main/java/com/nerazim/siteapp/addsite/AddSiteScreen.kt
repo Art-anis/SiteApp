@@ -7,6 +7,7 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -14,6 +15,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nerazim.siteapp.AppViewModelProvider
@@ -33,7 +36,14 @@ fun AddSiteScreen(
     val coroutineScope = rememberCoroutineScope()
     scaffoldState.value = ScaffoldState(
         title = {
-            Text(stringResource(id = R.string.app_name))
+            Text(stringResource(id = R.string.app_name),
+                style = MaterialTheme.typography.titleLarge
+                    .merge(
+                        TextStyle(
+                        fontWeight = FontWeight.Bold
+                    )
+                    )
+            )
         },
         topBarActions = {
             IconButton(onClick = goToBrowseScreen) {
@@ -67,21 +77,3 @@ fun AddSiteScreen(
         onValueChange = viewModel::updateUiState
     )
 }
-
-/*
-Preview теперь не работает из-за viewModel
-@Preview(showBackground = true)
-@Composable
-fun AddSiteScreenPreview() {
-SiteAppTheme {
-val state = remember {
-mutableStateOf(ScaffoldState(
-{},
-{},
-{}
-))
-}
-AddSiteScreen(scaffoldState = state, goToBrowseScreen = {  }, goBack = {})
-}
-}
-*/

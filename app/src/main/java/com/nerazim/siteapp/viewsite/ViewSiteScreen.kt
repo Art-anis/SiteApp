@@ -1,6 +1,11 @@
 package com.nerazim.siteapp.viewsite
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -22,10 +28,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -49,21 +57,37 @@ import com.nerazim.siteapp.ui.theme.SiteAppTheme
 @Composable
 fun ViewSiteScreen(
     scaffoldState: MutableState<ScaffoldState>,
-    goToAddScreen: (Int) -> Unit,
+    goToAddScreen: () -> Unit,
+    goToEditScreen: (Int) -> Unit,
     goBack: () -> Unit,
     viewModel: SiteDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val uiState = viewModel.uiState.collectAsState()
+
     scaffoldState.value = ScaffoldState(
         title = {
-            Text(stringResource(id = R.string.app_name))
+            Text(stringResource(id = R.string.app_name),
+                style = MaterialTheme.typography.titleLarge
+                    .merge(TextStyle(
+                        fontWeight = FontWeight.Bold
+                    ))
+            )
         },
         topBarActions = {
             IconButton(onClick = {
-                goToAddScreen(0)
+                goToAddScreen()
             }) {
                 Icon(
                     imageVector = Icons.Filled.Add,
                     contentDescription = stringResource(id = R.string.add_site)
+                )
+            }
+            IconButton(onClick = {
+                goToEditScreen(uiState.value.siteDetails.id)
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.Edit,
+                    contentDescription = null
                 )
             }
         },
@@ -76,7 +100,7 @@ fun ViewSiteScreen(
         }
     )
 
-    val uiState = viewModel.uiState.collectAsState()
+
     
     SiteData(uiState.value)
 }
@@ -85,6 +109,7 @@ fun ViewSiteScreen(
 fun SiteData(
     site: SiteDetailsUiState
 ) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -104,7 +129,6 @@ fun SiteData(
                 .merge(TextStyle(fontWeight = FontWeight.Bold))
         )
         Spacer(modifier = Modifier.height(12.dp))
-        //TODO fix after changing image source to URI
         AsyncImage(
             model = site.siteDetails.image,
             contentDescription = null,
@@ -118,7 +142,6 @@ fun SiteData(
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = site.siteDetails.description,
-            textAlign = TextAlign.Justify,
             modifier = Modifier
                 .fillMaxWidth()
         )
@@ -131,7 +154,15 @@ fun SiteData(
                         color = Color.Blue,
                         textDecoration = TextDecoration.Underline
                     )
-                )
+                ),
+            modifier = Modifier.clickable {
+                try {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(site.siteDetails.link)))
+                }
+                catch (e: ActivityNotFoundException) {
+                    Toast.makeText(context, "URL does not exist! Please fix the link.", Toast.LENGTH_LONG).show()
+                }
+            }
         )
     }
 }
@@ -143,6 +174,6 @@ fun ViewSiteScreenPreview() {
         val state = remember {
             mutableStateOf(ScaffoldState())
         }
-        ViewSiteScreen(scaffoldState = state, goToAddScreen = {}, goBack = {  })
+        ViewSiteScreen(scaffoldState = state, goToAddScreen = {}, goToEditScreen = {  }, goBack = {})
     }
 }
