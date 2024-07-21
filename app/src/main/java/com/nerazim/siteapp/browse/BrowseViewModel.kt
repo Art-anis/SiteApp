@@ -12,7 +12,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class BrowseViewModel(private val siteRepository: SiteRepository): ViewModel() {
+//viewModel для просмотра списка - хранит список всех мест
+class BrowseViewModel(private val siteRepository: SiteRepository): ViewModel() { //аргумент - репозиторий
     val browseUiState: StateFlow<BrowseUiState> =
         siteRepository.getAllSitesStream()
             .map { BrowseUiState(it) }

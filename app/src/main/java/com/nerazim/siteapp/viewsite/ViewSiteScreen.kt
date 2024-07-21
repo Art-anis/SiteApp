@@ -26,9 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,34 +35,28 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.nerazim.siteapp.AppViewModelProvider
 import com.nerazim.siteapp.R
 import com.nerazim.siteapp.ScaffoldState
-import com.nerazim.siteapp.addsite.SiteDetails
-import com.nerazim.siteapp.addsite.SiteUiState
-import com.nerazim.siteapp.browse.Site
-import com.nerazim.siteapp.nav.NavigationDestination
-import com.nerazim.siteapp.ui.theme.SiteAppTheme
 
+//экран просмотра места
 @Composable
 fun ViewSiteScreen(
-    scaffoldState: MutableState<ScaffoldState>,
-    goToAddScreen: () -> Unit,
+    scaffoldState: MutableState<ScaffoldState>, //состояние шаблона
+    goToAddScreen: () -> Unit, //функции перехода
     goToEditScreen: (Int) -> Unit,
     goBack: () -> Unit,
-    viewModel: SiteDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: SiteDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory) //viewModel для места
 ) {
-    val uiState = viewModel.uiState.collectAsState()
+    val uiState = viewModel.uiState.collectAsState() //состояние объекта
 
+    //обновляем состояние шаблона
     scaffoldState.value = ScaffoldState(
-        title = {
+        title = { //заголовок
             Text(stringResource(id = R.string.app_name),
                 style = MaterialTheme.typography.titleLarge
                     .merge(TextStyle(
@@ -73,80 +64,80 @@ fun ViewSiteScreen(
                     ))
             )
         },
-        topBarActions = {
-            IconButton(onClick = {
-                goToAddScreen()
-            }) {
-                Icon(
+        topBarActions = { //кнопки верхнего меню
+            IconButton(onClick = goToAddScreen) { //кнопка добавления
+                Icon( //иконка
                     imageVector = Icons.Filled.Add,
                     contentDescription = stringResource(id = R.string.add_site)
                 )
             }
-            IconButton(onClick = {
+            IconButton(onClick = { //кнопка редактирования
                 goToEditScreen(uiState.value.siteDetails.id)
             }) {
-                Icon(
+                Icon( //иконка
                     imageVector = Icons.Filled.Edit,
                     contentDescription = null
                 )
             }
         },
-        bottomBar = {
+        bottomBar = { //нижнее меню
             BottomAppBar {
-                Button(onClick = goBack) {
+                Button(onClick = goBack) { //кнопка возврата
                     Text(stringResource(id = R.string.back_btn))
                 }
             }
         }
     )
 
-
-    
+    //отображение данных о месте
     SiteData(uiState.value)
 }
 
+//компонент для данных о месте
 @Composable
 fun SiteData(
-    site: SiteDetailsUiState
+    site: SiteDetailsUiState //данные
 ) {
-    val context = LocalContext.current
-    Column(
+    val context = LocalContext.current //контекст приложения
+    Column( //столбец для отображения данных
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .fillMaxWidth() //заполняем всю ширину экрана
+            .padding(horizontal = 10.dp) //отступ
+            .verticalScroll(rememberScrollState()), //прокрутка
+        horizontalAlignment = Alignment.CenterHorizontally //выравнивание по центру
     ) {
+        //картинка-логотип
         Image(
             painter = painterResource(id = R.drawable.city),
             contentDescription = null,
             modifier = Modifier.height(80.dp)
         )
-        Spacer(Modifier.height(32.dp))
-        Text(
+        Spacer(Modifier.height(32.dp)) //отступ
+        Text( //текст с названием
             text = site.siteDetails.name,
             style = MaterialTheme.typography.titleLarge
                 .merge(TextStyle(fontWeight = FontWeight.Bold))
         )
-        Spacer(modifier = Modifier.height(12.dp))
-        AsyncImage(
-            model = site.siteDetails.image,
+        Spacer(modifier = Modifier.height(12.dp)) //отступ
+        AsyncImage( //место под картинку
+            model = site.siteDetails.image, //модель - URI из объекта
             contentDescription = null,
+            //если нет картинки - отображаем иконку
             placeholder = rememberVectorPainter(image = Icons.Default.Place),
             error = rememberVectorPainter(image = Icons.Default.Place),
             fallback = rememberVectorPainter(image = Icons.Default.Place),
             modifier = Modifier
-                .fillMaxWidth()
-                .height(256.dp)
+                .fillMaxWidth() //заполняем всю ширину
+                .height(256.dp) //фиксированная высота
         )
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
+        Spacer(modifier = Modifier.height(12.dp)) //отступ
+        Text( //текст с описанием
             text = site.siteDetails.description,
             modifier = Modifier
                 .fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(20.dp))
-        Text(
+        Text( //текст с ссылкой
             text = site.siteDetails.link,
             style = MaterialTheme.typography.bodyLarge
                 .merge(
@@ -155,8 +146,9 @@ fun SiteData(
                         textDecoration = TextDecoration.Underline
                     )
                 ),
-            modifier = Modifier.clickable {
+            modifier = Modifier.clickable { //кликабельный
                 try {
+                    //открываем в браузере эту ссылку
                     context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(site.siteDetails.link)))
                 }
                 catch (e: ActivityNotFoundException) {
@@ -164,16 +156,5 @@ fun SiteData(
                 }
             }
         )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ViewSiteScreenPreview() {
-    SiteAppTheme {
-        val state = remember {
-            mutableStateOf(ScaffoldState())
-        }
-        ViewSiteScreen(scaffoldState = state, goToAddScreen = {}, goToEditScreen = {  }, goBack = {})
     }
 }

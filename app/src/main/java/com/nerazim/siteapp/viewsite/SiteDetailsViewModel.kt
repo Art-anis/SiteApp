@@ -13,20 +13,21 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
+//viewModel для экрана просмотра места - хранит место, которые мы хотим посмотреть
 class SiteDetailsViewModel(
-    savedStateHandle: SavedStateHandle,
-    siteRepository: SiteRepository
+    savedStateHandle: SavedStateHandle, //сохраненное состояние
+    siteRepository: SiteRepository //репозиторий с данными
 ): ViewModel() {
-    private val itemId : Int = checkNotNull(savedStateHandle[DetailsDestination.itemId])
+    private val itemId : Int = checkNotNull(savedStateHandle[DetailsDestination.itemId]) //id текущего места
 
-    val uiState: StateFlow<SiteDetailsUiState> =
-        siteRepository.getSiteByIdStream(itemId)
-            .filterNotNull()
-            .map { SiteDetailsUiState(siteDetails = it.toSiteDetails()) }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-                initialValue = SiteDetailsUiState()
+    val uiState: StateFlow<SiteDetailsUiState> = //получаем данные
+        siteRepository.getSiteByIdStream(itemId) //из репозитория
+            .filterNotNull() //отфильтровываем пустые значения
+            .map { SiteDetailsUiState(siteDetails = it.toSiteDetails()) } //преобразовываем к нужному нам классу
+            .stateIn( //преобразовываем обычный Flow в StateFlow
+                scope = viewModelScope, //область наблюдаемости
+                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS), //стратегия осведомления об изменениях
+                initialValue = SiteDetailsUiState() //пустое начальное значение
             )
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L

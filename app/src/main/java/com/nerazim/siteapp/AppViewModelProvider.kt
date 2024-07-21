@@ -11,8 +11,10 @@ import com.nerazim.siteapp.edit.SiteEditViewModel
 import com.nerazim.siteapp.home.HomeViewModel
 import com.nerazim.siteapp.viewsite.SiteDetailsViewModel
 
+//фабрика для всех viewModel
 object AppViewModelProvider {
     val Factory = viewModelFactory {
+        //инициализируем все viewModel
         initializer {
             SiteEntryViewModel(siteApplication().container.sitesRepository)
         }
@@ -43,5 +45,6 @@ object AppViewModelProvider {
     }
 }
 
+//необходимо для того, чтобы репозиторий был везде один и тот же
 fun CreationExtras.siteApplication(): SiteApplication =
     (this[APPLICATION_KEY] as SiteApplication)

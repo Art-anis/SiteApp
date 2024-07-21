@@ -2,20 +2,28 @@ package com.nerazim.siteapp.db
 
 import kotlinx.coroutines.flow.Flow
 
+//репозиторий
 interface SiteRepository {
+    //получение всех мест
     fun getAllSitesStream(): Flow<List<SiteEntity>>
 
+    //получение места по id
     fun getSiteByIdStream(id: Int): Flow<SiteEntity?>
 
+    //получение случайного места
     fun getRandomSite(): Flow<SiteEntity>
 
+    //вставка
     suspend fun insertSite(site: SiteEntity)
 
+    //обновление
     suspend fun updateSite(site: SiteEntity)
 
+    //удаление
     suspend fun deleteSite(site: SiteEntity)
 }
 
+//реализация репозитория
 class SiteRepositoryImpl(private val siteDao: SiteDao): SiteRepository {
     override fun getAllSitesStream(): Flow<List<SiteEntity>> = siteDao.getAll()
 
